@@ -3,6 +3,7 @@ import { Navbar } from "./components/Navbar";
 import { auth } from "./lib/auth";
 import { redirect } from "next/navigation";
 import DLimage from "@/public/DLimage2.jpg";
+import { AuthModal } from "./components/AuthModal";
 
 export default async function Home() {
   const session = await auth();
@@ -25,9 +26,7 @@ export default async function Home() {
               Every rep and every set — tracked, analyzed, and conquered with purpose.
               Your journey isn’t just about lifting; it’s about progress, and we’re here to capture every step.
             </p>
-            <button className="bg-blue-600 hover:bg-blue-700 transition px-6 py-3 rounded-xl font-semibold w-max">
-              Try for Free
-            </button>
+            <AuthModal />
           </div>
 
           {/* Right Side Image */}
