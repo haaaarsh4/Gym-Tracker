@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ReactNode, use } from "react";
+import { ReactNode } from "react";
 import Logo from '@/public/WORKOUT TRACKER.png'
 import DefaultImage from '@/public/Default Image.png'
 import { DashboardLinks } from "../components/DashboardLinks";
@@ -10,37 +10,41 @@ import { Menu } from "lucide-react";
 import { ThemeToggle } from "../components/ThemeToggle";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { auth, signOut } from "../lib/auth";
-import { headers } from "next/headers";
 import { requireUser } from "../lib/hooks";
 import prisma from "../lib/db";
 import { redirect } from "next/navigation";
 import { Toaster } from "@/components/ui/sonner";
 
-async function getData(userId: string){
+async function getData(userId: string) {
     const data = await prisma.user.findUnique({
         where: {
             id: userId,
         },
         select: {
             userName: true,
+            name: true,
+            image: true,
+            email: true,
         },
     });
 
-    if(!data?.userName) {
+    if (!data?.userName) {
         return redirect("/onboarding");
     }
 
     return data;
 }
 
-export default async function DashboardLayout({children} : {children : ReactNode}) {
+export default async function DashboardLayout({children}: {children: ReactNode}) {
     const session = await auth();
 
     if (!session?.user) {
-      return redirect("/");
+        return redirect("/");
     }
-  
-    const data = await getData(session.user.id as string);
+
+    // Fetch fresh user data including the latest profile image
+    const userData = await getData(session.user.id as string);
+    
     return (
         <>
             <div className="min-h-screen w-full grid md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
@@ -80,27 +84,29 @@ export default async function DashboardLayout({children} : {children : ReactNode
 
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                <Button
-                                    variant="secondary"
-                                    size="icon"
-                                    className="rounded-full"
-                                >
-                                    <Image
-                                    src={session.user.image as string || DefaultImage}
-                                    alt="Profile Image"
-                                    width={20}
-                                    height={20}
-                                    className="w-full h-full rounded-full"
-                                    />
-                                    <span className="sr-only">Toggle user menu</span>
-                                </Button>
+                                    <Button
+                                        variant="secondary"
+                                        size="icon"
+                                        className="rounded-full"
+                                    >
+                                        <Image
+                                            src={userData.image || DefaultImage}
+                                            alt="Profile Image"
+                                            width={20}
+                                            height={20}
+                                            className="w-full h-full rounded-full object-cover"
+                                        />
+                                        <span className="sr-only">Toggle user menu</span>
+                                    </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end">
-                                    <DropdownMenuLabel>My account</DropdownMenuLabel>
+                                    <DropdownMenuLabel>
+                                        {userData.name || userData.userName || 'My account'}
+                                    </DropdownMenuLabel>
                                     <DropdownMenuSeparator />
                                     <DropdownMenuItem asChild>
                                         <Link href="/dashboard/settings">
-                                        Settings
+                                            Settings
                                         </Link>
                                     </DropdownMenuItem>
                                     <DropdownMenuItem asChild>

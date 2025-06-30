@@ -8,6 +8,7 @@ import { addWorkoutStep1Schema, addWorkoutStep2Schema, editWorkoutStep1Schema, e
 import { redirect } from "next/navigation";
 import { z } from 'zod';
 import { signIn } from './lib/auth';
+import { revalidatePath } from 'next/cache';
 
 export async function OnboardingAction(prevState: any, formData: FormData) {
     const session = await requireUser()
@@ -156,28 +157,45 @@ export async function signUpAction(prevState: any, formData: FormData) {
     return redirect('/onboarding')
 }
 
-export async function SettingsAction(prevState:any, formData: FormData) {
+export async function SettingsAction(prevState: any, formData: FormData) {
     const session = await requireUser();
 
     const submission = parseWithZod(formData, {
         schema: settingsSchema,
     });
 
-    if (submission.status !== "success"){
+    if (submission.status !== "success") {
         return submission.reply();
     }
 
-    const user = await prisma.user.update({
-        where: {
-            id: session.user?.id as string,
-        },
-        data: {
-            name: submission.value.fullname,
-            image: submission.value.profileImage,
-        }, 
-    });
+    try {
+        const user = await prisma.user.update({
+            where: {
+                id: session.user?.id as string,
+            },
+            data: {
+                name: submission.value.fullname,
+                image: submission.value.profileImage,
+            },
+        });
 
-    return redirect("/dashboard/settings");
+        // Revalidate the path to update cached data
+        revalidatePath("/dashboard/settings");
+        revalidatePath("/dashboard"); // Also revalidate dashboard to update header
+        
+        // Return success instead of redirecting
+        return {
+            status: "success" as const,
+            message: "Settings updated successfully!"
+        };
+        
+    } catch (error) {
+        console.error("Error updating user:", error);
+        return {
+            status: "error" as const,
+            message: "Failed to update settings. Please try again."
+        };
+    }
 }
 
 export async function Step1Action(prevState: unknown, formData: FormData) {
