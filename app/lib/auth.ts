@@ -12,7 +12,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         strategy: "jwt"
     },
     providers: [
-        Google,
+        Google({
+            clientId: process.env.GOOGLE_CLIENT_ID!,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+            // This allows automatic account linking for same email addresses
+            allowDangerousEmailAccountLinking: true,
+        }),
         Credentials({
             name: "credentials",
             credentials: {
@@ -71,5 +76,5 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
     pages: {
         signIn: "/",
-    }
+    },
 })
