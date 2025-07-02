@@ -6,9 +6,12 @@ import prisma from "@/app/lib/db";
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
+    // Await the params since they're now a Promise in Next.js 15
+    const params = await context.params;
+    
     // Get the current user session
     const session = await auth();
     
