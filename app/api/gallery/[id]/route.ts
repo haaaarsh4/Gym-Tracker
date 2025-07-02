@@ -1,38 +1,73 @@
+// app/api/gallery/[id]/route.ts
+
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/app/lib/auth";
 import prisma from "@/app/lib/db";
 
 export async function DELETE(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  request: NextRequest,
+  { params }: { params: { id: string } }
 ) {
   try {
-    // Await the params since it's now a Promise in Next.js 15
-    const { id } = await params;
+    // Get the current user session
+    const session = await auth();
     
-    if (!id) {
+    if (!session?.user?.email) {
       return NextResponse.json(
-        { error: "Image ID is required" }, 
-        { status: 400 }
+        { error: 'Unauthorized' }, 
+        { status: 401 }
       );
     }
 
-    // Delete the image from the database
-    const deletedImage = await prisma.gallery.delete({
+    // Find the user
+    const user = await prisma.user.findUnique({
       where: {
-        id: id,
+        email: session.user.email,
       },
     });
 
-    return NextResponse.json({
-      success: true,
-      message: "Image deleted successfully",
-      deletedImage
+    if (!user) {
+      return NextResponse.json(
+        { error: 'User not found' }, 
+        { status: 404 }
+      );
+    }
+
+    // First, check if the image exists and belongs to the current user
+    const existingImage = await prisma.gallery.findUnique({
+      where: {
+        id: params.id,
+      },
     });
+
+    if (!existingImage) {
+      return NextResponse.json(
+        { error: 'Image not found' }, 
+        { status: 404 }
+      );
+    }
+
+    // Check if the image belongs to the current user
+    if (existingImage.userId !== user.id) {
+      return NextResponse.json(
+        { error: 'Forbidden - you can only delete your own images' }, 
+        { status: 403 }
+      );
+    }
+
+    // Delete the image (only if it belongs to the current user)
+    await prisma.gallery.delete({
+      where: {
+        id: params.id,
+        userId: user.id, // Double-check ownership
+      },
+    });
+
+    return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Error deleting gallery image:", error);
-    // Handle case where image doesn't exist
+    console.error('Error deleting gallery image:', error);
     return NextResponse.json(
-      { error: "Failed to delete image" }, 
+      { error: 'Internal server error' }, 
       { status: 500 }
     );
   }
