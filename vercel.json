@@ -1,0 +1,13 @@
+{
+  "headers": [
+    {
+      "source": "/Arnold.glb",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "model/gltf-binary"
+        }
+      ]
+    }
+  ]
+}
