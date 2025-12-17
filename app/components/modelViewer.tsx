@@ -9,7 +9,7 @@ type ModelProps = {
 };
 
 function ArnoldModel({ url }: ModelProps) {
-  const { scene } = useGLTF("https://github.com/haaaarsh4/Gym-Tracker/blob/main/public/Arnold.glb");
+  const { scene } = useGLTF(url);
 
   useEffect(() => {
     scene.rotation.y = 0;
@@ -21,7 +21,7 @@ function ArnoldModel({ url }: ModelProps) {
 }
 
 // Preload optimized GLB (do this only if the model is on the first screen)
-useGLTF.preload("/https://github.com/haaaarsh4/Gym-Tracker/blob/main/public/Arnold.glb");
+useGLTF.preload("/Arnold.glb");
 
 function ModelCanvas() {
   return (
