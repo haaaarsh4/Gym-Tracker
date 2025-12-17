@@ -15,17 +15,21 @@ export default async function Home() {
   return (
     <>
       <div className="min-h-screen bg-black px-4 flex flex-col">
-        <Navbar />
         <div className="flex-1 grid md:grid-cols-2 items-center px-6 lg:px-20 py-12 relative">
           {/* Left Content */}
-          <div className="z-10 space-y-6 text-white">
-            <h1 className="text-4xl md:text-5xl font-extrabold italic leading-tight">
-              Shape Yourself
-            </h1>
-            <p className="text-base md:text-lg text-gray-300 max-w-md">
-              Every rep and every set — tracked, analyzed, and conquered with purpose.
-              Your journey isn’t just about lifting; it’s about progress, and we’re here to capture every step.
-            </p>
+          <div className="space-y-10 text-white">
+            <div className="space-y-6">
+              <h1 className="text-5xl sm:text-5xl lg:text-7xl font-bold leading-[0.95]">
+                Shape
+                <br />
+                <span className="text-blue-500">Yourself</span>
+              </h1>
+              <div className="w-20 h-1 bg-blue-500 rounded-full"></div>
+              <p className="text-xl sm:text-2xl text-slate-300 leading-relaxed max-w-xl font-light">
+                Every rep and every set — tracked, analyzed, and conquered with purpose.
+                Your journey isn't just about lifting; it's about progress, and we're here to capture every step.
+              </p>
+            </div>
             <AuthModal />
           </div>
 
