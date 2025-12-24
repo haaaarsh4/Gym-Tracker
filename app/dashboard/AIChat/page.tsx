@@ -1,15 +1,22 @@
-import { UploadButton } from '@uploadthing/react';
-import type { OurFileRouter } from '@/app/api/uploadthing/core';
-import { ImageUpload } from '@/app/components/ImageUpload';
+import { ChatbotEmbed } from '@/app/components/ChatbotEmbed';
 
-export default function Gallary() {
+export default function AIAssistant() {
   return (
-    <div className=''>
-        <div className=' flex items-center justify-between'>
-            <h1 className="text-center font-bold text-3xl">
-            In <span className="text-blue-500">Development :(</span>
-            </h1>
+    <div className='min-h-screen flex items-center justify-center p-6'>
+      <div className='max-w-4xl w-full'>
+        <div className='text-center mb-8'>
+          <h1 className="font-bold text-4xl mb-2">
+            AI Fitness <span className="text-blue-500">Assistant</span>
+          </h1>
+          <p className="text-slate-600 dark:text-slate-400 text-lg">
+            Get personalized workout advice, nutrition tips, and fitness guidance
+          </p>
         </div>
+        
+        <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 h-[700px] flex flex-col overflow-hidden">
+          <ChatbotEmbed />
+        </div>
+      </div>
     </div>
   );
 }

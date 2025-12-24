@@ -89,8 +89,8 @@ export default function GalleryComponent() {
   if (isLoading) {
     return (
       <div className=''>
-        <div className='flex items-center justify-between mb-8'>
-          <h1 className="text-center font-bold text-3xl">
+        <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8'>
+          <h1 className="font-bold text-3xl text-center sm:text-left">
             Workout <span className="text-blue-500">Gallery</span>
           </h1>
         </div>
@@ -103,11 +103,11 @@ export default function GalleryComponent() {
 
   return (
     <div className='p-6'>
-      <div className='flex items-center justify-between mb-8'>
-        <h1 className="text-center font-bold text-3xl">
+      <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8'>
+        <h1 className="font-bold text-3xl text-center sm:text-left">
           Workout <span className="text-blue-500">Gallery</span>
         </h1>
-        <div className='flex-shrink-0 ml-4'>
+        <div className='flex-shrink-0 mx-auto sm:mx-0'>
           <ImageUpload onImageUploaded={handleImageUploaded} />
         </div>
       </div>
