@@ -5,7 +5,7 @@ import { parseWithZod } from "@conform-to/zod";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { editStep2Action } from '../actions';
 import { editWorkoutStep2Schema } from '../lib/zodSchemas';
@@ -25,6 +25,69 @@ interface EditWorkoutStep2Props {
   workoutId: string;
   onBack?: () => void;
 }
+
+// Exercise database organized by muscle group
+const EXERCISE_DATABASE = {
+    Chest: [
+        "Flat Bench Press",
+        "Incline Bench Press",
+        "Decline Bench Press",
+        "Dumbbell Bench Press",
+        "Incline Dumbbell Press",
+        "Chest Fly",
+        "Cable Crossover",
+        "Push-Ups",
+        "Dips",
+        "Pec Deck Machine"
+    ],
+    Shoulders: [
+        "Dumbbell Shoulder Press",
+        "Lateral Raises",
+        "Front Raises",
+        "Rear Delt Fly",
+        "Shrugs",
+        "Military Press",
+    ],
+    Triceps: [
+        "Tricep Pushdown",
+        "Overhead Tricep Extension",
+        "Skull Crushers",
+        "Close-Grip Bench Press",
+        "Tricep Dips",
+        "Kickbacks"
+    ],
+    Back: [
+        "Deadlift",
+        "Pull-Ups",
+        "Lat Pulldown",
+        "Barbell Row",
+        "Dumbbell Row",
+        "T-Bar Row",
+        "Cable Row",
+        "Face Pulls",
+    ],
+    Biceps: [
+        "Barbell Curl",
+        "Dumbbell Curl",
+        "Hammer Curl",
+        "Preacher Curl",
+        "Concentration Curl",
+        "Cable Curl",
+        "Incline Dumbbell Curl"
+    ],
+    Legs: [
+        "Squat",
+        "Leg Press",
+        "Romanian Deadlift",
+        "Leg Curl",
+        "Leg Extension",
+        "Calf Raises",
+        "Lunges",
+        "Bulgarian Split Squat",
+        "Hack Squat",
+        "Hip Thrust"
+    ]
+};
 
 export function EditWorkoutStep2({ workoutId, onBack }: EditWorkoutStep2Props) {
     const [lastResult, action] = useActionState(editStep2Action, undefined);
@@ -102,9 +165,16 @@ export function EditWorkoutStep2({ workoutId, onBack }: EditWorkoutStep2Props) {
 
     const handleExerciseChange = (index: number, key: string, value: string) => {
         setExercises((prev) =>
-            prev.map((exercise, i) =>
-                i === index ? { ...exercise, [key]: value } : exercise
-            )
+            prev.map((exercise, i) => {
+                if (i === index) {
+                    // If muscle group changes, reset exercise name
+                    if (key === "muscleGroup") {
+                        return { ...exercise, muscleGroup: value, exerciseName: "" };
+                    }
+                    return { ...exercise, [key]: value };
+                }
+                return exercise;
+            })
         );
     };
     
@@ -160,23 +230,12 @@ export function EditWorkoutStep2({ workoutId, onBack }: EditWorkoutStep2Props) {
                 
                 {exercises.map((exercise, i) => (
                     <div key={i} className="grid gap-y-5">
-                        <div className="flex flex-col gap-y-2">
-                            <Label>Exercise Name</Label>
-                            <Input
-                                name={`exercises[${i}].exercisename`}
-                                defaultValue={exercise.exerciseName}
-                                placeholder="Exercise Name"
-                                onChange={(e) => handleExerciseChange(i, "exerciseName", e.target.value)}
-                            /> 
-                            <p className="text-red-500 text-sm">
-                                {getFieldError(`exercises[${i}].exercisename`)}
-                            </p>
-                        </div>
+                        {/* Muscle Group Selection - First */}
                         <div className="flex flex-col gap-y-2">
                             <Label>Muscle Group</Label>
                             <Select
                                 name={`exercises[${i}].muscleGroup`}
-                                defaultValue={exercise.muscleGroup || ""}
+                                value={exercise.muscleGroup || ""}
                                 onValueChange={(value) => handleExerciseChange(i, "muscleGroup", value)}
                             >
                                 <SelectTrigger>
@@ -197,6 +256,43 @@ export function EditWorkoutStep2({ workoutId, onBack }: EditWorkoutStep2Props) {
                                 {getFieldError(`exercises[${i}].muscleGroup`)}
                             </p>
                         </div>
+
+                        {/* Exercise Name - Always visible */}
+                        <div className="flex flex-col gap-y-2">
+                            <Label>Exercise Name</Label>
+                            <Select
+                                name={`exercises[${i}].exercisename`}
+                                value={exercise.exerciseName || ""}
+                                onValueChange={(value) => handleExerciseChange(i, "exerciseName", value)}
+                                disabled={!exercise.muscleGroup}
+                            >
+                                <SelectTrigger>
+                                    <SelectValue 
+                                        placeholder={
+                                            exercise.muscleGroup 
+                                                ? `Select ${exercise.muscleGroup} Exercise` 
+                                                : "Select Muscle Group First"
+                                        } 
+                                    />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {exercise.muscleGroup && (
+                                        <SelectGroup>
+                                            <SelectLabel>{exercise.muscleGroup} Exercises</SelectLabel>
+                                            {EXERCISE_DATABASE[exercise.muscleGroup as keyof typeof EXERCISE_DATABASE]?.map((exerciseName) => (
+                                                <SelectItem key={exerciseName} value={exerciseName}>
+                                                    {exerciseName}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectGroup>
+                                    )}
+                                </SelectContent>
+                            </Select>
+                            <p className="text-red-500 text-sm">
+                                {getFieldError(`exercises[${i}].exercisename`)}
+                            </p>
+                        </div>
+
                         <div className="flex flex-row items-center gap-x-4">
                             <div className="flex-1 font-medium">Set</div>
                             <div className="flex-1 font-medium">Weight</div>

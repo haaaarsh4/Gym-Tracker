@@ -4,7 +4,8 @@ import prisma from "./db";
 interface DashboardStats {
   workoutsThisWeek: number;
   workoutsLastWeek: number;
-  averageDuration: number;
+  totalSetsCompleted: number;
+  setsChange: number;
   totalExercises: number;
   exercisesThisWeek: number;
   currentStreak: number;
@@ -24,6 +25,35 @@ interface DashboardStats {
   }>;
 }
 
+interface ExerciseProgressData {
+  date: string;
+  maxWeight: number;
+  totalVolume: number;
+  avgReps: number;
+}
+
+interface MuscleDistribution {
+  name: string;
+  value: number;
+  color: string;
+}
+
+interface AnalyticsData {
+  muscleGroups: string[];
+  exercisesByMuscle: Record<string, string[]>;
+  progressData: Record<string, ExerciseProgressData[]>;
+  muscleDistribution: MuscleDistribution[];
+}
+
+const COLORS: Record<string, string> = {
+  Chest: '#3b82f6',
+  Shoulders: '#8b5cf6',
+  Triceps: '#ec4899',
+  Back: '#10b981',
+  Biceps: '#f59e0b',
+  Legs: '#ef4444'
+};
+
 export async function getDashboardStats(userId: string): Promise<DashboardStats> {
   // Get current date boundaries
   const now = new Date();
@@ -37,7 +67,7 @@ export async function getDashboardStats(userId: string): Promise<DashboardStats>
   const startOfLastWeek = new Date(startOfWeek);
   startOfLastWeek.setDate(startOfWeek.getDate() - 7);
 
-  // Fetch all user workouts with exercises
+  // Fetch all user workouts with exercises and sets
   const allWorkouts = await prisma.workout.findMany({
     where: { userId },
     include: {
@@ -50,15 +80,40 @@ export async function getDashboardStats(userId: string): Promise<DashboardStats>
     orderBy: { date: 'desc' },
   });
 
-  // Calculate workouts this week
-  const workoutsThisWeek = allWorkouts.filter(
+  // Get workouts for this week
+  const workoutsThisWeekData = allWorkouts.filter(
     (w) => w.date >= startOfWeek && w.date < endOfWeek
-  ).length;
+  );
 
-  // Calculate workouts last week
-  const workoutsLastWeek = allWorkouts.filter(
+  // Get workouts for last week
+  const workoutsLastWeekData = allWorkouts.filter(
     (w) => w.date >= startOfLastWeek && w.date < startOfWeek
-  ).length;
+  );
+
+  // Calculate total sets this week
+  const totalSetsThisWeek = workoutsThisWeekData.reduce((total, workout) => {
+    const workoutSets = workout.exercises.reduce((exTotal, exercise) => {
+      return exTotal + exercise.sets.length;
+    }, 0);
+    return total + workoutSets;
+  }, 0);
+
+  // Calculate total sets last week
+  const totalSetsLastWeek = workoutsLastWeekData.reduce((total, workout) => {
+    const workoutSets = workout.exercises.reduce((exTotal, exercise) => {
+      return exTotal + exercise.sets.length;
+    }, 0);
+    return total + workoutSets;
+  }, 0);
+
+  // Calculate percentage change for sets
+  const setsChange = totalSetsLastWeek > 0
+    ? Math.round(((totalSetsThisWeek - totalSetsLastWeek) / totalSetsLastWeek) * 100)
+    : 0;
+
+  // Calculate workouts this week and last week
+  const workoutsThisWeek = workoutsThisWeekData.length;
+  const workoutsLastWeek = workoutsLastWeekData.length;
 
   // Calculate total exercises
   const totalExercises = allWorkouts.reduce(
@@ -67,22 +122,10 @@ export async function getDashboardStats(userId: string): Promise<DashboardStats>
   );
 
   // Calculate exercises this week
-  const exercisesThisWeek = allWorkouts
-    .filter((w) => w.date >= startOfWeek && w.date < endOfWeek)
-    .reduce((sum, workout) => sum + workout.exercises.length, 0);
-
-  // Calculate average duration (estimate: 3 minutes per exercise + 5 minutes warmup)
-  const averageDuration = allWorkouts.length > 0
-    ? Math.round(
-        allWorkouts.reduce((sum, workout) => {
-          const exerciseTime = workout.exercises.reduce(
-            (eSum, exercise) => eSum + exercise.sets.length * 3,
-            0
-          );
-          return sum + exerciseTime + 5;
-        }, 0) / allWorkouts.length
-      )
-    : 0;
+  const exercisesThisWeek = workoutsThisWeekData.reduce(
+    (sum, workout) => sum + workout.exercises.length, 
+    0
+  );
 
   // Calculate streak
   const currentStreak = calculateStreak(allWorkouts);
@@ -93,32 +136,31 @@ export async function getDashboardStats(userId: string): Promise<DashboardStats>
     date: w.date,
   }));
 
+  // Calculate weekly goal duration (estimate: 3 minutes per set + 5 minutes warmup per workout)
+  const weeklyDuration = workoutsThisWeekData.reduce((sum, workout) => {
+    const exerciseTime = workout.exercises.reduce(
+      (eSum, exercise) => eSum + exercise.sets.length * 3,
+      0
+    );
+    return sum + exerciseTime + 5;
+  }, 0);
+
   // Calculate weekly goal
   const weeklyGoal = {
     current: workoutsThisWeek,
-    target: 15, // You can make this dynamic by adding a goal field to User model
-    duration: allWorkouts
-      .filter((w) => w.date >= startOfWeek && w.date < endOfWeek)
-      .reduce((sum, workout) => {
-        const exerciseTime = workout.exercises.reduce(
-          (eSum, exercise) => eSum + exercise.sets.length * 3,
-          0
-        );
-        return sum + exerciseTime + 5;
-      }, 0),
+    target: 15,
+    duration: weeklyDuration,
     targetDuration: 360, // 6 hours in minutes
   };
 
   // Calculate muscle group focus (this week)
   const muscleGroupCount: Record<string, number> = {};
-  allWorkouts
-    .filter((w) => w.date >= startOfWeek && w.date < endOfWeek)
-    .forEach((workout) => {
-      workout.exercises.forEach((exercise) => {
-        const group = exercise.muscleGroup;
-        muscleGroupCount[group] = (muscleGroupCount[group] || 0) + 1;
-      });
+  workoutsThisWeekData.forEach((workout) => {
+    workout.exercises.forEach((exercise) => {
+      const group = exercise.muscleGroup;
+      muscleGroupCount[group] = (muscleGroupCount[group] || 0) + 1;
     });
+  });
 
   const muscleGroupFocus = Object.entries(muscleGroupCount)
     .map(([name, count]) => ({ name, count }))
@@ -127,13 +169,126 @@ export async function getDashboardStats(userId: string): Promise<DashboardStats>
   return {
     workoutsThisWeek,
     workoutsLastWeek,
-    averageDuration,
+    totalSetsCompleted: totalSetsThisWeek,
+    setsChange,
     totalExercises,
     exercisesThisWeek,
     currentStreak,
     recentWorkouts,
     weeklyGoal,
     muscleGroupFocus,
+  };
+}
+
+export async function getAnalyticsData(userId: string): Promise<AnalyticsData> {
+  const now = new Date();
+  
+  // Get last 30 days for muscle distribution
+  const thirtyDaysAgo = new Date(now);
+  thirtyDaysAgo.setDate(now.getDate() - 30);
+  
+  // Get last 90 days for exercise progress
+  const ninetyDaysAgo = new Date(now);
+  ninetyDaysAgo.setDate(now.getDate() - 90);
+
+  // Fetch all workouts with exercises and sets
+  const workouts = await prisma.workout.findMany({
+    where: {
+      userId,
+      date: { gte: ninetyDaysAgo }
+    },
+    include: {
+      exercises: {
+        include: {
+          sets: true
+        }
+      }
+    },
+    orderBy: { date: 'asc' }
+  });
+
+  // Get unique muscle groups
+  const muscleGroupsSet = new Set<string>();
+  workouts.forEach(workout => {
+    workout.exercises.forEach(exercise => {
+      muscleGroupsSet.add(exercise.muscleGroup);
+    });
+  });
+  const muscleGroups = Array.from(muscleGroupsSet).sort();
+
+  // Get exercises grouped by muscle
+  const exercisesByMuscle: Record<string, Set<string>> = {};
+  workouts.forEach(workout => {
+    workout.exercises.forEach(exercise => {
+      if (!exercisesByMuscle[exercise.muscleGroup]) {
+        exercisesByMuscle[exercise.muscleGroup] = new Set();
+      }
+      exercisesByMuscle[exercise.muscleGroup].add(exercise.exerciseName);
+    });
+  });
+
+  // Convert Sets to Arrays
+  const exercisesByMuscleArray: Record<string, string[]> = {};
+  Object.entries(exercisesByMuscle).forEach(([muscle, exerciseSet]) => {
+    exercisesByMuscleArray[muscle] = Array.from(exerciseSet).sort();
+  });
+
+  // Calculate progress data for each exercise
+  const progressData: Record<string, ExerciseProgressData[]> = {};
+  
+  Object.values(exercisesByMuscle).forEach(exerciseSet => {
+    Array.from(exerciseSet).forEach(exerciseName => {
+      const exerciseWorkouts = workouts.filter(workout =>
+        workout.exercises.some(ex => ex.exerciseName === exerciseName)
+      );
+
+      const progressPoints: ExerciseProgressData[] = exerciseWorkouts.map(workout => {
+        const exercise = workout.exercises.find(ex => ex.exerciseName === exerciseName)!;
+        
+        const maxWeight = Math.max(...exercise.sets.map(set => set.weight));
+        const totalVolume = exercise.sets.reduce(
+          (sum, set) => sum + (set.weight * set.reps),
+          0
+        );
+        const avgReps = Math.round(
+          exercise.sets.reduce((sum, set) => sum + set.reps, 0) / exercise.sets.length
+        );
+
+        return {
+          date: workout.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+          maxWeight,
+          totalVolume,
+          avgReps
+        };
+      });
+
+      progressData[exerciseName] = progressPoints;
+    });
+  });
+
+  // Calculate muscle distribution (last 30 days)
+  const muscleCount: Record<string, number> = {};
+  workouts
+    .filter(w => w.date >= thirtyDaysAgo)
+    .forEach(workout => {
+      workout.exercises.forEach(exercise => {
+        muscleCount[exercise.muscleGroup] = (muscleCount[exercise.muscleGroup] || 0) + 1;
+      });
+    });
+
+  const muscleDistribution: MuscleDistribution[] = Object.entries(muscleCount)
+    .map(([name, value]) => ({
+      name,
+      value,
+      color: COLORS[name] || '#64748b'
+    }))
+    .sort((a, b) => b.value - a.value);
+
+  return {
+    muscleGroups,
+    exercisesByMuscle: exercisesByMuscleArray,
+    progressData,
+    muscleDistribution
   };
 }
 

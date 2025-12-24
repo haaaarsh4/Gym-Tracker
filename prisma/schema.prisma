@@ -22,6 +22,7 @@ model User {
   image         String?
   userName      String?   @unique
   password      String?
+  isGuest       Boolean   @default(false) // Add this field
   accounts      Account[]
   sessions      Session[]
   workout       Workout[]

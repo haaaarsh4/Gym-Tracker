@@ -2,28 +2,39 @@
 
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, Environment, useGLTF } from "@react-three/drei";
-import { Suspense, useEffect } from "react";
+import { Suspense, useState } from "react";
 
 type ModelProps = {
   url: string;
+  onLoad: () => void;
 };
 
-function ArnoldModel({ url }: ModelProps) {
+function ArnoldModel({ url, onLoad }: ModelProps) {
   const { scene } = useGLTF(url);
 
-  useEffect(() => {
-    scene.rotation.y = 0;
-    scene.position.set(0, 0, 0);
-    scene.scale.setScalar(0.375);
-  }, [scene]);
+  useState(() => {
+    onLoad();
+  });
+
+  scene.rotation.y = 0;
+  scene.position.set(0, 0, 0);
+  scene.scale.setScalar(0.375);
 
   return <primitive object={scene} />;
 }
 
-// Preload optimized GLB (do this only if the model is on the first screen)
 useGLTF.preload("/Arnold.glb");
 
-function ModelCanvas() {
+function LoadingSpinner() {
+  return (
+    <mesh>
+      <boxGeometry args={[0, 0, 0]} />
+      <meshBasicMaterial transparent opacity={0} />
+    </mesh>
+  );
+}
+
+function ModelCanvas({ onModelLoad }: { onModelLoad: () => void }) {
   return (
     <Canvas
       camera={{ position: [0, 0, 5], fov: 50 }}
@@ -35,8 +46,8 @@ function ModelCanvas() {
       eventSource={undefined}
       eventPrefix="client"
     >
-      <Suspense fallback={null}>
-        <ArnoldModel url="/Arnold.glb" />
+      <Suspense fallback={<LoadingSpinner />}>
+        <ArnoldModel url="/Arnold.glb" onLoad={onModelLoad} />
         <OrbitControls
           enablePan={false}
           enableZoom
@@ -54,13 +65,21 @@ function ModelCanvas() {
 }
 
 export function ModelViewer() {
+  const [isLoading, setIsLoading] = useState(true);
+
+  const handleModelLoad = () => {
+    setIsLoading(false);
+  };
+
   return (
     <div className="w-full h-full pointer-events-auto relative">
-      <div className="absolute inset-0 flex items-center justify-center z-0">
-        <div className="h-12 w-12 border-4 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
-      </div>
+      {isLoading && (
+        <div className="absolute inset-0 flex items-center justify-center z-20 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900">
+          <div className="h-12 w-12 border-4 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
+        </div>
+      )}
       <div className="w-full h-full relative z-10">
-        <ModelCanvas />
+        <ModelCanvas onModelLoad={handleModelLoad} />
       </div>
     </div>
   );

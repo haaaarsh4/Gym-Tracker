@@ -28,102 +28,84 @@ export function CalendarCardStep2({ onBack, exercises, isLoading }: CalendarCard
 
   if (isLoading) {
     return (
-      <div className="fixed inset-0 flex items-center justify-center z-50">
-        <Card className="w-full max-w-2xl mx-4 border-slate-700">
-          <CardContent className="p-8">
-            <div className="flex items-center justify-center">
-              <span className="text-slate-300">Loading exercises...</span>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="w-full max-w-2xl rounded-2xl p-8 shadow-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-slate-700">
+        <div className="flex items-center justify-center">
+          <span className="text-slate-600 dark:text-slate-300">Loading exercises...</span>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
-      <Card className="w-full max-w-3xl max-h-[90vh] border-slate-700">
-        <CardHeader className="border-b border-slate-700">
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-xl text-white">Workout Details</CardTitle>
-            <Button
-              onClick={onBack}
-              variant="ghost"
-              size="sm"
-              className="text-slate-400 hover:text-white hover:bg-slate-700"
-            >
-              <X className="h-5 w-5" />
-            </Button>
-          </div>
-        </CardHeader>
+    <div className="w-full max-w-3xl">
+      <div className="border-b border-slate-200 dark:border-slate-700 p-6">
+        <h2 className="text-xl font-semibold text-slate-900 dark:text-white">Workout Details</h2>
+      </div>
 
-        <CardContent className="p-0">
-          <div className="max-h-[60vh] overflow-y-auto">
-            {safeExercises.length === 0 ? (
-              <div className="text-center py-12 px-6">
-                <p className="text-slate-400">No exercises found for this workout.</p>
-              </div>
-            ) : (
-              <div className="divide-y divide-slate-700">
-                {safeExercises.map((exercise) => (
-                  <div key={exercise.id} className="p-6">
-                    <div className="mb-4">
-                      <h3 className="text-lg font-medium text-white mb-1">
-                        {exercise.exerciseName}
-                      </h3>
-                      <p className="text-sm text-slate-400">
-                        Muscle Group: {exercise.muscleGroup}
-                      </p>
-                    </div>
-                    
-                    <div className="space-y-3">
-                      {(exercise.sets || []).map((set, idx) => (
-                        <div 
-                          key={set.id} 
-                          className="flex items-center justify-between bg-slate-700/50 rounded-lg p-4"
-                        >
-                          <div className="text-slate-300 text-sm">
-                            Set {idx + 1}
+      <div className="max-h-[60vh] overflow-y-auto">
+        {safeExercises.length === 0 ? (
+          <div className="text-center py-12 px-6">
+            <p className="text-slate-500 dark:text-slate-400">No exercises found for this workout.</p>
+          </div>
+        ) : (
+          <div className="divide-y divide-slate-200 dark:divide-slate-700">
+            {safeExercises.map((exercise) => (
+              <div key={exercise.id} className="p-6">
+                <div className="mb-4">
+                  <h3 className="text-lg font-medium text-slate-900 dark:text-white mb-1">
+                    {exercise.exerciseName}
+                  </h3>
+                  <p className="text-sm text-slate-600 dark:text-slate-400">
+                    Muscle Group: {exercise.muscleGroup}
+                  </p>
+                </div>
+                
+                <div className="space-y-3">
+                  {(exercise.sets || []).map((set, idx) => (
+                    <div 
+                      key={set.id} 
+                      className="flex items-center justify-between bg-slate-50 dark:bg-slate-700/50 rounded-lg p-4"
+                    >
+                      <div className="text-slate-600 dark:text-slate-300 text-sm">
+                        Set {idx + 1}
+                      </div>
+                      
+                      <div className="flex items-center space-x-8">
+                        <div className="text-center">
+                          <div className="text-lg font-medium text-slate-900 dark:text-white">
+                            {set.weight || 0}
                           </div>
-                          
-                          <div className="flex items-center space-x-8">
-                            <div className="text-center">
-                              <div className="text-lg font-medium text-white">
-                                {set.weight || 0}
-                              </div>
-                              <div className="text-xs text-slate-400">
-                                lbs
-                              </div>
-                            </div>
-                            
-                            <div className="text-center">
-                              <div className="text-lg font-medium text-white">
-                                {set.reps || 0}
-                              </div>
-                              <div className="text-xs text-slate-400">
-                                reps
-                              </div>
-                            </div>
+                          <div className="text-xs text-slate-500 dark:text-slate-400">
+                            lbs
                           </div>
                         </div>
-                      ))}
+                        
+                        <div className="text-center">
+                          <div className="text-lg font-medium text-slate-900 dark:text-white">
+                            {set.reps || 0}
+                          </div>
+                          <div className="text-xs text-slate-500 dark:text-slate-400">
+                            reps
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            )}
+            ))}
           </div>
-          
-          <div className="p-6 border-t border-slate-700">
-            <Button
-              onClick={onBack}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-            >
-              Back
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+        )}
+      </div>
+      
+      <div className="p-6 border-t border-slate-200 dark:border-slate-700">
+        <Button
+          onClick={onBack}
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+        >
+          Back
+        </Button>
+      </div>
     </div>
   );
 }

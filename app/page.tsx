@@ -1,9 +1,10 @@
+// app/page.tsx
 import Image from "next/image";
-import { Navbar } from "./components/Navbar";
 import { auth } from "./lib/auth";
 import { redirect } from "next/navigation";
 import DLimage from "@/public/DLimage2.jpg";
 import { AuthModal } from "./components/AuthModal";
+import { GuestLoginButton } from "./components/GuestLoginButton";
 
 export default async function Home() {
   const session = await auth();
@@ -30,7 +31,10 @@ export default async function Home() {
                 Your journey isn't just about lifting; it's about progress, and we're here to capture every step.
               </p>
             </div>
-            <AuthModal />
+            <div className="space-y-4">
+              <AuthModal />
+              <GuestLoginButton />
+            </div>
           </div>
 
           {/* Right Side Image */}

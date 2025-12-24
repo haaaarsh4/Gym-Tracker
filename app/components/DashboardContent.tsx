@@ -3,8 +3,8 @@
 
 import dynamic from "next/dynamic";
 import { redirect } from "next/navigation";
+import { WorkoutAnalytics } from "./WorkoutAnalytics";
 
-// Dynamically load the 3D model viewer (no SSR)
 const ModelViewer = dynamic(() => import("@/app/components/modelViewer"), {
   ssr: false,
   loading: () => (
@@ -14,10 +14,24 @@ const ModelViewer = dynamic(() => import("@/app/components/modelViewer"), {
   ),
 });
 
+interface ExerciseProgressData {
+  date: string;
+  maxWeight: number;
+  totalVolume: number;
+  avgReps: number;
+}
+
+interface MuscleDistribution {
+  name: string;
+  value: number;
+  color: string;
+}
+
 interface DashboardStats {
   workoutsThisWeek: number;
   workoutsLastWeek: number;
-  averageDuration: number;
+  totalSetsCompleted: number;
+  setsChange: number;
   totalExercises: number;
   exercisesThisWeek: number;
   currentStreak: number;
@@ -35,6 +49,12 @@ interface DashboardStats {
     name: string;
     count: number;
   }>;
+  analytics: {
+    muscleGroups: string[];
+    exercisesByMuscle: Record<string, string[]>;
+    progressData: Record<string, ExerciseProgressData[]>;
+    muscleDistribution: MuscleDistribution[];
+  };
 }
 
 interface DashboardContentProps {
@@ -80,7 +100,7 @@ export default function DashboardContent({ stats }: DashboardContentProps) {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
+    <div className="min-h-screen bg-slate-200 dark:bg-slate-950">
       <div className="relative z-10 min-h-screen flex flex-col">
         {/* Header Section */}
         <div className="text-center pt-4 pb-4 sm:pt-6 sm:pb-8 px-4 flex-shrink-0 relative z-50">
@@ -92,13 +112,12 @@ export default function DashboardContent({ stats }: DashboardContentProps) {
           </p>
         </div>
 
-
         {/* Stats Cards */}
         <div className="px-4 sm:px-6 lg:px-8 pb-6">
           <div className="max-w-7xl mx-auto">
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
               {/* Workouts This Week */}
-              <div className="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow">
+              <div className="bg-white dark:bg-slate-900 rounded-xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow">
                 <div className="flex items-center justify-between mb-3">
                   <div className="w-10 h-10 bg-blue-500/10 dark:bg-blue-500/20 rounded-xl flex items-center justify-center">
                     <svg className="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -127,28 +146,39 @@ export default function DashboardContent({ stats }: DashboardContentProps) {
                 </div>
               </div>
 
-              {/* Average Duration */}
-              <div className="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow">
+              {/* Total Sets Completed */}
+              <div className="bg-white dark:bg-slate-900 rounded-xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow">
                 <div className="flex items-center justify-between mb-3">
                   <div className="w-10 h-10 bg-purple-500/10 dark:bg-purple-500/20 rounded-xl flex items-center justify-center">
                     <svg className="w-5 h-5 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
                     </svg>
                   </div>
                 </div>
                 <div className="space-y-1">
                   <p className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">
-                    {stats.averageDuration}m
+                    {stats.totalSetsCompleted || 0}
                   </p>
-                  <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 font-medium">Average Duration</p>
+                  <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 font-medium">Sets This Week</p>
                 </div>
                 <div className="mt-3 flex items-center gap-1 text-xs">
-                  <span className="text-slate-500 dark:text-slate-500">per workout</span>
+                  {stats.setsChange !== undefined && stats.setsChange !== 0 ? (
+                    <>
+                      <span className={`font-medium ${stats.setsChange > 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                        {stats.setsChange > 0 ? '+' : ''}{stats.setsChange}%
+                      </span>
+                      <span className="text-slate-500 dark:text-slate-500">vs last week</span>
+                    </>
+                  ) : (
+                    <span className="text-slate-500 dark:text-slate-500">
+                      {stats.totalSetsCompleted > 0 ? 'Great start!' : 'Start tracking!'}
+                    </span>
+                  )}
                 </div>
               </div>
 
               {/* Total Exercises */}
-              <div className="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow">
+              <div className="bg-white dark:bg-slate-900 rounded-xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow">
                 <div className="flex items-center justify-between mb-3">
                   <div className="w-10 h-10 bg-orange-500/10 dark:bg-orange-500/20 rounded-xl flex items-center justify-center">
                     <svg className="w-5 h-5 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -169,7 +199,7 @@ export default function DashboardContent({ stats }: DashboardContentProps) {
               </div>
 
               {/* Streak */}
-              <div className="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow">
+              <div className="bg-white dark:bg-slate-900 rounded-xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow">
                 <div className="flex items-center justify-between mb-3">
                   <div className="w-10 h-10 bg-green-500/10 dark:bg-green-500/20 rounded-xl flex items-center justify-center">
                     <svg className="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -205,7 +235,7 @@ export default function DashboardContent({ stats }: DashboardContentProps) {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
               {/* Left Sidebar - Quick Actions */}
               <div className="lg:col-span-3 space-y-4">
-                <div className="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm">
+                <div className="bg-white dark:bg-slate-900 rounded-xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm">
                   <h2 className="text-sm font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
                     <div className="w-1 h-4 bg-blue-500 rounded-full"></div>
                     Quick Actions
@@ -242,7 +272,7 @@ export default function DashboardContent({ stats }: DashboardContentProps) {
                 </div>
 
                 {/* Recent Activity */}
-                <div className="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm">
+                <div className="bg-white dark:bg-slate-900 rounded-xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm">
                   <h3 className="text-sm font-bold text-slate-900 dark:text-white mb-4">Recent Activity</h3>
                   <div className="space-y-3">
                     {stats.recentWorkouts.length > 0 ? (
@@ -282,7 +312,7 @@ export default function DashboardContent({ stats }: DashboardContentProps) {
 
               {/* Center - 3D Model */}
               <div className="lg:col-span-6">
-                <div className="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-200 dark:border-slate-800 shadow-sm h-[500px] lg:h-[600px]">
+                <div className="bg-white dark:bg-slate-900 rounded-xl p-4 border border-slate-200 dark:border-slate-800 shadow-sm h-[500px] lg:h-[600px]">
                   <div className="w-full h-full rounded-xl overflow-hidden bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900">
                     <ModelViewer />
                   </div>
@@ -292,7 +322,7 @@ export default function DashboardContent({ stats }: DashboardContentProps) {
               {/* Right Sidebar - Goals & Progress */}
               <div className="lg:col-span-3 space-y-4">
                 {/* Weekly Goal */}
-                <div className="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm">
+                <div className="bg-white dark:bg-slate-900 rounded-xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm">
                   <h3 className="text-sm font-bold text-slate-900 dark:text-white mb-4">Weekly Goal</h3>
                   <div className="space-y-4">
                     <div>
@@ -327,7 +357,7 @@ export default function DashboardContent({ stats }: DashboardContentProps) {
                 </div>
 
                 {/* Muscle Groups Trained */}
-                <div className="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm">
+                <div className="bg-white dark:bg-slate-900 rounded-xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm">
                   <h3 className="text-sm font-bold text-slate-900 dark:text-white mb-4">This Week's Focus</h3>
                   <div className="space-y-2">
                     {stats.muscleGroupFocus.length > 0 ? (
@@ -356,7 +386,7 @@ export default function DashboardContent({ stats }: DashboardContentProps) {
 
                 {/* Achievement */}
                 {stats.currentStreak >= 3 && (
-                  <div className="bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl p-5 shadow-lg">
+                  <div className="bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl p-5 shadow-lg">
                     <div className="flex items-start gap-3">
                       <div className="w-10 h-10 bg-white/20 backdrop-blur rounded-xl flex items-center justify-center flex-shrink-0">
                         <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -378,6 +408,14 @@ export default function DashboardContent({ stats }: DashboardContentProps) {
             </div>
           </div>
         </div>
+
+        {/* Analytics Section */}
+        <WorkoutAnalytics 
+          muscleGroups={stats.analytics.muscleGroups}
+          exercisesByMuscle={stats.analytics.exercisesByMuscle}
+          progressData={stats.analytics.progressData}
+          muscleDistribution={stats.analytics.muscleDistribution}
+        />
       </div>
     </div>
   );

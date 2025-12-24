@@ -2,7 +2,7 @@ import { Label } from "@/components/ui/label";
 import { Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import { cn } from "@/lib/utils"; // Assuming utility for merging class names
+import { cn } from "@/lib/utils";
 
 interface iAppProps {
   title: string;
@@ -43,32 +43,38 @@ export function CalendarCardStep1({
   };
 
   return (
-    <div className="w-full max-w-md rounded-2xl p-6 shadow-xl">
+    <div className="w-full max-w-md p-6">
       <div className="flex items-center">
-        <Pencil className="h-4 w-4 text-zinc-400 hover:text-white mr-4" />
-        <h2 className="text-xl font-semibold text-white">Workout Summary</h2>
-        <button 
-          onClick={handleEdit} 
-          className="p-2 rounded-full hover:bg-zinc-800 transition-colors"
-          aria-label="Edit"
+        <button
+          onClick={handleEdit}
+          className="mr-4 transition-colors hover:bg-slate-100 dark:hover:bg-zinc-800 rounded-md p-1 cursor-pointer"
+          aria-label="Edit workout"
+          title="Edit"
         >
+          <Pencil className="h-4 w-4 text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white" />
         </button>
+        <h2 className="text-xl font-semibold text-slate-900 dark:text-white">Workout Summary</h2>
       </div>
 
-      <div className="mt-6 space-y-4 text-sm text-zinc-400">
+      <div className="mt-6 space-y-4 text-sm text-slate-600 dark:text-zinc-400">
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <Label className="text-xs uppercase text-zinc-500">Title</Label>
-            <p className="text-base text-white font-medium">{title}</p>
+            <Label className="text-xs uppercase text-slate-500 dark:text-zinc-500">Title</Label>
+            <p className="text-base text-slate-900 dark:text-white font-medium">{title}</p>
           </div>
           <div>
-            <Label className="text-xs uppercase text-zinc-500">Date</Label>
-            <p className="text-base text-white font-medium">{date}</p>
+            <Label className="text-xs uppercase text-slate-500 dark:text-zinc-500">Date</Label>
+            <p className="text-base text-slate-900 dark:text-white font-medium">{date}</p>
           </div>
         </div>
         <div>
-          <Label className="text-xs uppercase text-zinc-500">Notes</Label>
-          <p className={cn("text-zinc-400 whitespace-pre-wrap", notes ? "text-sm" : "italic text-zinc-600")}>
+          <Label className="text-xs uppercase text-slate-500 dark:text-zinc-500">Notes</Label>
+          <p className={cn(
+            "whitespace-pre-wrap",
+            notes 
+              ? "text-sm text-slate-600 dark:text-zinc-400" 
+              : "italic text-slate-400 dark:text-zinc-600"
+          )}>
             {notes || "No additional notes"}
           </p>
         </div>
