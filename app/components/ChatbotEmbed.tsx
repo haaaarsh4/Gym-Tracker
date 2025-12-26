@@ -1,9 +1,9 @@
-// app/components/ChatbotEmbed.tsx
 "use client";
 
 import { useState, useRef, useEffect } from "react";
 import { Send, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import ReactMarkdown from "react-markdown";
 
 interface Message {
   role: "user" | "assistant";
@@ -84,7 +84,15 @@ export function ChatbotEmbed() {
                   : "bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm"
               }`}
             >
-              <p className="text-sm whitespace-pre-wrap leading-relaxed">{message.content}</p>
+              {message.role === "assistant" ? (
+                <div className="text-sm leading-relaxed prose prose-sm dark:prose-invert max-w-none prose-p:my-2 prose-p:leading-relaxed prose-ul:my-2 prose-ol:my-2 prose-li:my-1 prose-headings:mt-4 prose-headings:mb-2 prose-strong:font-semibold prose-strong:text-blue-600 dark:prose-strong:text-blue-400">
+                  <ReactMarkdown>
+                    {message.content}
+                  </ReactMarkdown>
+                </div>
+              ) : (
+                <p className="text-sm whitespace-pre-wrap leading-relaxed">{message.content}</p>
+              )}
             </div>
           </div>
         ))}

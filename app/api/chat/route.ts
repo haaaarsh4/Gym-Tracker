@@ -20,7 +20,7 @@ export async function POST(req: Request) {
     }
 
     const completion = await openai.chat.completions.create({
-      model: "google/gemini-flash-1.5-8b", // 👈 FREE Google model (updated)
+      model: "meta-llama/llama-3.2-3b-instruct:free", 
       messages: [
         {
           role: "system",
