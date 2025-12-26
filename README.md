@@ -1,36 +1,200 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🏋️‍♂️ Gym-Tracker
 
-## Getting Started
+A modern **full-stack workout tracking web application** built with **Next.js, TypeScript, Tailwind CSS, and Prisma** — with integrated **AI chatbot support** to help users with fitness questions and workout guidance.
 
-First, run the development server:
+Live demo: https://workout-tracker-sepia-nine.vercel.app
+
+---
+
+## 🔍 Overview
+
+Gym-Tracker is a fitness web app that lets users:
+
+- 📅 Log workouts (exercises, sets, reps, weights)
+- 📊 Track workout history
+- 📈 See progress over time
+- 🤖 Ask an integrated **AI Fitness Assistant** questions about exercise, workouts, or fitness tips
+
+This app is designed to be simple, mobile-friendly, and easy to deploy.
+
+---
+
+## ✨ Key Features
+
+### 🏋️ Workout Tracking
+
+- Create workouts with a name & date
+- Add exercises with sets, reps, and weights
+- Persist workouts to a database
+- View, edit, and delete logged workouts
+
+### 🤖 AI Fitness Chatbot
+
+- Ask fitness questions like:
+  - “What’s a good chest workout for strength?”
+  - “How should I structure rest days?”
+  - “How many calories should I aim for in a cutting phase?”
+- Powered via **OpenAI or AI API backend**
+- Helps users with guidance, terminology, and personalized tips
+
+### ⚙️ Tech Highlights
+
+- **Next.js** for frontend & backend API routes
+- **TypeScript** for safety & clarity
+- **Tailwind CSS** for beautiful UI
+- **Prisma ORM** for database interaction
+- Built for deployment on **Vercel**
+
+---
+
+## 🛠️ Technology Stack
+
+| Layer                     | Tech                      |
+|--------------------------|---------------------------|
+| Frontend                 | Next.js, TypeScript       |
+| Styling                  | Tailwind CSS              |
+| Backend APIs             | Next.js API Routes        |
+| Database                 | Prisma (any supported DB) |
+| AI Integration           | OpenAI or similar         |
+| Deployment               | Vercel                    |
+
+---
+
+## 📦 Installation & Local Setup
+
+Follow these steps to run Gym-Tracker on your local machine:
+
+### 1️⃣ Clone the repository
+
+```bash
+git clone https://github.com/haaaarsh4/Gym-Tracker.git
+cd Gym-Tracker
+```
+
+### 2️⃣ Install dependencies
+
+```bash
+npm install
+# or
+yarn install
+```
+
+### 3️⃣ Create environment config
+
+Create a `.env` file in the project root with the following variables:
+
+```
+DATABASE_URL="your_database_connection_string"
+OPENAI_API_KEY="your_openai_api_key"
+NEXT_PUBLIC_APP_URL="http://localhost:3000"
+```
+
+### 4️⃣ Run database migrations
+
+```bash
+npx prisma migrate dev --name init
+```
+
+### 5️⃣ Start the development server
 
 ```bash
 npm run dev
 # or
 yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000 in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🚀 How to Use
 
-## Learn More
+### 🏋️ Workout Logging
 
-To learn more about Next.js, take a look at the following resources:
+1. From the home page, navigate to **Workouts**
+2. Click **Create Workout**
+3. Add exercises with sets, reps, and optional weights
+4. Save your workout
+5. View your workout history on the **History** page to see progress over time
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🤖 AI Fitness Chat
 
-## Deploy on Vercel
+- Go to the **AI Chat** or **Fitness Assistant** screen
+- Type questions like:
+  - “What exercises build back strength?”
+  - “How many rest days should I take per week?”
+- Hit send and get helpful fitness tips from the chatbot
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+> The AI features require your `OPENAI_API_KEY` (or equivalent) to be set in `.env`.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## 📁 Project Structure
+
+```
+📦 Gym-Tracker
+├─ 📁 app/                  # Next.js frontend + server routes
+├─ 📁 components/ ui/       # UI components
+├─ 📁 lib/                  # Helper utilities & shared logic
+├─ 📁 prisma/               # Prisma schema & migrations
+├─ 📁 public/               # Static files
+├─ .env                    # Environment variables (local only)
+├─ next.config.ts          # Next.js config
+├─ tailwind.config.ts      # Tailwind CSS config
+└─ tsconfig.json           # TypeScript config
+```
+
+---
+
+## 🧠 AI Integration Details
+
+The AI chatbot uses your selected AI provider (default: OpenAI). It sends user questions to the API and displays thoughtful responses.
+
+Make sure your `.env` includes:
+
+```
+OPENAI_API_KEY="your_openai_api_key_here"
+```
+
+The API route handling this can be found under `app/api`.
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Here’s how:
+
+1. Fork this repository
+2. Create a branch (e.g., `feature/new-chatbot`)
+3. Implement changes
+4. Open a Pull Request
+
+Please keep code style consistent and add tests for new features where applicable.
+
+---
+
+## 🧭 Roadmap
+
+Future improvements might include:
+
+- 📊 Data visualization (charts, graphs)
+- 🗓 Workout plans & templates
+- 🔔 Push notifications for workout reminders
+- 📱 Improved mobile UI/UX
+
+---
+
+## 📜 License
+
+Released under the **MIT License**.
+
+---
+
+## 📫 Contact
+
+**Harsh Upadhyay** — Gym-Tracker Creator  
+GitHub: https://github.com/haaaarsh4
+
+Stay fit and keep building! 💪
