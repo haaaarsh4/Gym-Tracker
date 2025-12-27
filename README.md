@@ -1,4 +1,4 @@
-# 🏋️‍♂️ Gym-Tracker
+# Gym-Tracker
 
 A modern **full-stack workout tracking web application** built with **Next.js, TypeScript, Tailwind CSS, and Prisma** — with integrated **AI chatbot support** to help users with fitness questions and workout guidance.
 
@@ -6,29 +6,29 @@ Live demo: https://workout-tracker-sepia-nine.vercel.app
 
 ---
 
-## 🔍 Overview
+## Overview
 
 Gym-Tracker is a fitness web app that lets users:
 
-- 📅 Log workouts (exercises, sets, reps, weights)
-- 📊 Track workout history
-- 📈 See progress over time
-- 🤖 Ask an integrated **AI Fitness Assistant** questions about exercise, workouts, or fitness tips
+- Log workouts (exercises, sets, reps, weights)
+- Track workout history
+- See progress over time
+- Ask an integrated **AI Fitness Assistant** questions about exercise, workouts, or fitness tips
 
 This app is designed to be simple, mobile-friendly, and easy to deploy.
 
 ---
 
-## ✨ Key Features
+## Key Features
 
-### 🏋️ Workout Tracking
+### Workout Tracking
 
 - Create workouts with a name & date
 - Add exercises with sets, reps, and weights
 - Persist workouts to a database
 - View, edit, and delete logged workouts
 
-### 🤖 AI Fitness Chatbot
+### AI Fitness Chatbot
 
 - Ask fitness questions like:
   - “What’s a good chest workout for strength?”
@@ -37,7 +37,7 @@ This app is designed to be simple, mobile-friendly, and easy to deploy.
 - Powered via **OpenAI or AI API backend**
 - Helps users with guidance, terminology, and personalized tips
 
-### ⚙️ Tech Highlights
+### Tech Highlights
 
 - **Next.js** for frontend & backend API routes
 - **TypeScript** for safety & clarity
@@ -47,7 +47,7 @@ This app is designed to be simple, mobile-friendly, and easy to deploy.
 
 ---
 
-## 🛠️ Technology Stack
+## Technology Stack
 
 | Layer                     | Tech                      |
 |--------------------------|---------------------------|
@@ -60,18 +60,18 @@ This app is designed to be simple, mobile-friendly, and easy to deploy.
 
 ---
 
-## 📦 Installation & Local Setup
+## Installation & Local Setup
 
 Follow these steps to run Gym-Tracker on your local machine:
 
-### 1️⃣ Clone the repository
+### STEP 1: Clone the repository
 
 ```bash
 git clone https://github.com/haaaarsh4/Gym-Tracker.git
 cd Gym-Tracker
 ```
 
-### 2️⃣ Install dependencies
+### STEP 2: Install dependencies
 
 ```bash
 npm install
@@ -79,7 +79,7 @@ npm install
 yarn install
 ```
 
-### 3️⃣ Create environment config
+### STEP 3: Create environment config
 
 Create a `.env` file in the project root with the following variables:
 
@@ -89,13 +89,13 @@ OPENAI_API_KEY="your_openai_api_key"
 NEXT_PUBLIC_APP_URL="http://localhost:3000"
 ```
 
-### 4️⃣ Run database migrations
+### STEP 4: Run database migrations
 
 ```bash
 npx prisma migrate dev --name init
 ```
 
-### 5️⃣ Start the development server
+### STEP 5: Start the development server
 
 ```bash
 npm run dev
@@ -107,9 +107,9 @@ Open http://localhost:3000 in your browser.
 
 ---
 
-## 🚀 How to Use
+## How to Use
 
-### 🏋️ Workout Logging
+### Workout Logging
 
 1. From the home page, navigate to **Workouts**
 2. Click **Create Workout**
@@ -119,7 +119,7 @@ Open http://localhost:3000 in your browser.
 
 ---
 
-## 🤖 AI Fitness Chat
+## AI Fitness Chat
 
 - Go to the **AI Chat** or **Fitness Assistant** screen
 - Type questions like:
@@ -131,7 +131,7 @@ Open http://localhost:3000 in your browser.
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 📦 Gym-Tracker
@@ -148,7 +148,7 @@ Open http://localhost:3000 in your browser.
 
 ---
 
-## 🧠 AI Integration Details
+## AI Integration Details
 
 The AI chatbot uses your selected AI provider (default: OpenAI). It sends user questions to the API and displays thoughtful responses.
 
@@ -162,7 +162,7 @@ The API route handling this can be found under `app/api`.
 
 ---
 
-## 🤝 Contributing
+## Contributing :)
 
 Contributions are welcome! Here’s how:
 
@@ -175,24 +175,24 @@ Please keep code style consistent and add tests for new features where applicabl
 
 ---
 
-## 🧭 Roadmap
+## Roadmap
 
 Future improvements might include:
 
-- 📊 Data visualization (charts, graphs)
-- 🗓 Workout plans & templates
-- 🔔 Push notifications for workout reminders
-- 📱 Improved mobile UI/UX
+- Data visualization (charts, graphs)
+- Workout plans & templates
+- Push notifications for workout reminders
+- Improved mobile UI/UX
 
 ---
 
-## 📜 License
+## License
 
 Released under the **MIT License**.
 
 ---
 
-## 📫 Contact
+## Contact
 
 **Harsh Upadhyay** — Gym-Tracker Creator  
 GitHub: https://github.com/haaaarsh4
