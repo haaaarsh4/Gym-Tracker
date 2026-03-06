@@ -2,7 +2,7 @@
 
 A modern **full-stack workout tracking web application** built with **Next.js, TypeScript, Tailwind CSS, and Prisma** — with integrated **AI chatbot support** to help users with fitness questions and workout guidance.
 
-Live demo: https://workout-tracker-sepia-nine.vercel.app
+Live demo: https://myworkout-tracker.vercel.app/
 
 ---
 
